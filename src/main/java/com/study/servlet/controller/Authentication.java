@@ -12,7 +12,9 @@ import javax.servlet.http.HttpServletResponse;
 import com.google.gson.Gson;
 import com.study.servlet.dto.RequestDto;
 import com.study.servlet.dto.ResponseDto;
+import com.study.servlet.entity.Role;
 import com.study.servlet.entity.User;
+import com.study.servlet.service.RoleService;
 import com.study.servlet.service.UserService;
 import com.study.servlet.service.UserServiceImpl;
 
@@ -22,6 +24,7 @@ public class Authentication extends HttpServlet {
 	private static final long serialVersionUID = 1L;
 	
 	private UserService userService;
+	private RoleService roleService;
 	private Gson gson;
 	
 	public Authentication() {
@@ -38,14 +41,14 @@ public class Authentication extends HttpServlet {
 		// Request 안에 들어있는 Json을 객체로 전환
 		User user = RequestDto.<User>convertRequestBody(request, User.class);
 		
-		boolean duplicatedFlag = userService.duplicatedUsername(user.getUsername());
+		boolean userDuplicatedFlag = userService.duplicatedUsername(user.getUsername());
 		
 		response.setContentType("application/json;charset=utf-8");
 		PrintWriter out = response.getWriter();
 		
-		if(duplicatedFlag) {
+		if(userDuplicatedFlag) {
 			// true == 중복, false == 가입 가능
-			ResponseDto<Boolean> responseDto = new ResponseDto<Boolean>(400, "duplicated username", duplicatedFlag);
+			ResponseDto<Boolean> responseDto = new ResponseDto<Boolean>(400, "duplicated username", userDuplicatedFlag);
 			out.println(gson.toJson(responseDto));
 			return;
 		}
@@ -53,6 +56,11 @@ public class Authentication extends HttpServlet {
 		ResponseDto<Integer> responseDto = new ResponseDto<Integer>(201, "signup", userService.addUser(user));
 		out.println(gson.toJson(responseDto));
 		return;
+		
+
+//		RoleInfo role = RequestDto.<RoleInfo>convertRequestBody(request, RoleInfo.class);
+		
 	}
+	
 
 }
